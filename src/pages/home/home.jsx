@@ -3,6 +3,9 @@ import React from 'react'
 import { Link } from 'react-router-dom'
 import { useSelector,useDispatch } from 'react-redux'
 import { delInfoBtn } from '../../redux/slice/todo'
+import { Modal } from '../../Components'
+import { saveState } from '../../hooks/localstorage'
+import  Store from '../../redux/store'
 
 // css
 import './home.css'
@@ -12,25 +15,35 @@ import deleteBtnImg from './img/delete.svg'
 import addBtnImg from './img/add.svg'
 import editBtnImg from './img/edit.svg'
 
+
+Store.subscribe(() => {
+    saveState("Todo" , Store.getState().Todo)
+})
+
+
+let trueFalse = false
+
 function Home() {
     const Todo = useSelector(state => state.Todo);
-    const [add, setAdd] = React.useState(false)
+    const [add, setAdd] = React.useState(trueFalse)
+    const [ modal , setModal ] = React.useState(false)
+    const [ edit , setEdit ] = React.useState({})
+    
+    console.log(Todo)
 
     const dispatch = useDispatch()
 
     const addInfo = () => {
-        setAdd(true)
-        console.log(add)
-        // if(Todo.length == 0){
-        //     setAdd(false)
-        // }
+        setAdd(trueFalse = true)
     }
 
-    const deleteBtn = (e) => {
-        dispatch(delInfoBtn(e))
+    const deleteBtn = (id) => {
+        dispatch(delInfoBtn(id))
     }
 
-    const editBtn = () => {
+    const editBtn = (id) => {
+        setEdit({...edit , id:id})
+        setModal(true)
         
     }
 
@@ -82,7 +95,7 @@ function Home() {
                                                             <h3 className='to-do-item-info'>{item.info}</h3>
                                                         </div>
                                                         <div>
-                                                            <button onClick={editBtn} className='to-do-icon-btn'>
+                                                            <button onClick={() => editBtn(item.id)} className='to-do-icon-btn'>
                                                                 <img src={editBtnImg} width='21' height='25' alt="Delete Button" />
                                                             </button>
                                                             <button onClick={() => deleteBtn(item.id)} className='to-do-icon-btn deletebtn'>
@@ -96,6 +109,9 @@ function Home() {
                                         </ul>
                                         :
                                         ''
+                                }
+                                {
+                                    modal? <Modal setModal = {setModal} edit= {edit} setEdit = {setEdit} /> : ''
                                 }
                                 <button onClick={addInfo} className='info-list-btn'>
                                     <img src={addBtnImg} alt="Add Btn" />
